@@ -46,20 +46,49 @@ return {
     keys = {
       -- add a keymap to browse plugin files
       -- stylua: ignore
+      --
       {
         "<leader>fp",
         function() require("telescope.builtin").find_files({ cwd = require("lazy.core.config").options.root }) end,
+        desc = "Find Plugin File",
+      },
+      {
+        "<leader>c/",
+        function()
+          require("telescope.builtin").find_files({ grep_string = "<cword>" })
+        end,
         desc = "Find Plugin File",
       },
     },
     -- change some options
     opts = {
       defaults = {
-        layout_strategy = "horizontal",
+        layout_strategy = "vertical",
         layout_config = { prompt_position = "top" },
         sorting_strategy = "ascending",
         winblend = 0,
       },
+    },
+  },
+
+  -- add telescope-fzf-native
+  {
+    "telescope.nvim",
+    keys = {
+      {
+        "<leader>c/",
+        function()
+          require("telescope.builtin").find_files({ grep_string = "<cword>" })
+        end,
+        desc = "Find Plugin File",
+      },
+    },
+    dependencies = {
+      "nvim-telescope/telescope-fzf-native.nvim",
+      build = "make",
+      config = function()
+        require("telescope").load_extension("fzf")
+      end,
     },
   },
 
@@ -115,11 +144,14 @@ return {
   -- treesitter, mason and typescript.nvim. So instead of the above, you can use:
   { import = "lazyvim.plugins.extras.lang.typescript" },
 
-  -- add more treesitter parsers
+  -- since `vim.tbl_deep_extend`, can only merge tables and not lists, the code above
+  -- would overwrite `ensure_installed` with the new value.
+  -- If you'd rather extend the default config, use the code below instead:
   {
     "nvim-treesitter/nvim-treesitter",
-    opts = {
-      ensure_installed = {
+    opts = function(_, opts)
+      -- add tsx and treesitter
+      vim.list_extend(opts.ensure_installed, {
         "bash",
         "html",
         "javascript",
@@ -134,20 +166,7 @@ return {
         "typescript",
         "vim",
         "yaml",
-      },
-    },
-  },
-
-  -- since `vim.tbl_deep_extend`, can only merge tables and not lists, the code above
-  -- would overwrite `ensure_installed` with the new value.
-  -- If you'd rather extend the default config, use the code below instead:
-  {
-    "nvim-treesitter/nvim-treesitter",
-    opts = function(_, opts)
-      -- add tsx and treesitter
-      vim.list_extend(opts.ensure_installed, {
-        "tsx",
-        "typescript",
+        "markdoc",
       })
     end,
   },
